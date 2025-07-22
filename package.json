@@ -1,0 +1,23 @@
+{
+  "name": "magicstudio-ai-gen",
+  "version": "1.0.0",
+  "description": "AI image generator using MagicStudio API with frontend and backend",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "postinstall": "echo 'Postinstall done'"
+  },
+  "keywords": ["ai", "image", "generator", "magicstudio", "node"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
