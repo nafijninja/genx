@@ -1,70 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MagicStudio AI Image Generator</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-    textarea { width: 80%; height: 100px; margin: 10px auto; display: block; }
-    button { margin: 5px; padding: 10px 20px; font-size: 16px; }
-    img { margin-top: 20px; max-width: 90%; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MagicStudio AI Generator</title>
 </head>
 <body>
-  <h1>MagicStudio AI Image Generator</h1>
-  <textarea id="prompt" placeholder="Enter your prompt here..."></textarea>
-  <br>
+  <h1>MagicStudio AI Generator</h1>
+  <textarea id="prompt" rows="5" cols="60" placeholder="Enter your prompt"></textarea><br>
   <button id="generateBtn">Generate</button>
-  <button id="refreshBtn" disabled>Refresh</button>
-  <div id="status"></div>
-  <img id="resultImage" src="" alt="Generated Image" />
+  <button id="refreshBtn">Refresh</button>
+  <div id="images"></div>
 
   <script>
-    let lastPrompt = "";
+    const api = window.location.origin;
 
-    async function generateImage(prompt) {
-      document.getElementById("status").innerText = "⏳ Generating image...";
-      document.getElementById("resultImage").src = "";
-
-      try {
-        console.log("📤 Sending prompt:", prompt);
-        const res = await fetch("/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt })
-        });
-
-        const data = await res.json();
-        if (data.image) {
-          document.getElementById("status").innerText = "✅ Image generated!";
-          document.getElementById("resultImage").src = data.image;
-          document.getElementById("refreshBtn").disabled = false;
-          lastPrompt = prompt;
-          console.log("🖼️ Image received!");
-        } else {
-          throw new Error(data.error || "Unknown error");
-        }
-      } catch (err) {
-        console.error("❌ Error generating image:", err);
-        document.getElementById("status").innerText = "Error: " + err.message;
-      }
+    function renderImages(imgs) {
+      const container = document.getElementById("images");
+      container.innerHTML = "";
+      imgs.forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        img.style.width = "300px";
+        img.style.margin = "10px";
+        container.appendChild(img);
+      });
     }
 
-    document.getElementById("generateBtn").addEventListener("click", () => {
-      const prompt = document.getElementById("prompt").value.trim();
-      if (!prompt) {
-        alert("Please enter a prompt!");
-        return;
-      }
-      generateImage(prompt);
-    });
+    document.getElementById("generateBtn").onclick = async () => {
+      const prompt = document.getElementById("prompt").value;
+      const res = await fetch(`${api}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+      if (data.images) renderImages(data.images);
+      else alert(data.error || "Error generating images");
+    };
 
-    document.getElementById("refreshBtn").addEventListener("click", () => {
-      if (lastPrompt) {
-        generateImage(lastPrompt);
-      }
-    });
+    document.getElementById("refreshBtn").onclick = async () => {
+      const res = await fetch(`${api}/refresh`);
+      const data = await res.json();
+      if (data.images) renderImages(data.images);
+      else alert(data.error || "Error refreshing images");
+    };
   </script>
 </body>
 </html>
